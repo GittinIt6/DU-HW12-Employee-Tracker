@@ -91,9 +91,12 @@ let employeeRoleUpdate = (choiceInput,employee) => {
           choices: choiceInput,
       }
   ])
-  .then((response) => {
-      console.log(`employee is ${employee}.`);
-      console.log(`new role is ${response.employeeRoleChoice}`);
+  .then(async(response) => {
+      let empName = employee.split(" ");
+      const empID = await dataQuery(`SELECT id FROM employee WHERE first_name = '${empName[0]}' AND last_name = '${empName[1]}'`,false);
+      const roleID = await dataQuery(`SELECT id FROM role WHERE title = '${response.employeeRoleChoice}'`,false);
+      await dataQuery(`UPDATE employee SET role_id = ${roleID[0].id} WHERE id = ${empID[0].id}`,false);
+      console.log(`USER UPDATE SUCCESS: ${employee} new role is ${response.employeeRoleChoice}`);
       return endQuest();
   });
   return;
