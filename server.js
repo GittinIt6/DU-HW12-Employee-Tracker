@@ -1,16 +1,95 @@
-const express = require('inquirer');
-const const mysql = require('mysql2');
+const inquirer = require('inquirer');
+const cTable = require('console.table');
+const mysql = require('mysql2');
+
+// const PORT = process.env.PORT || 3001;
 
 const db = mysql.createConnection(
     {
     host: '192.168.147.181',
     user: 'sqladmin',
     password: 'sqladmin1',
-    database: 'tracker_db'
+    database: 'tracker_db',
     },
     console.log(`Connected to the tracker_db database.`)
-  );
+);
 
+const qRoles = 'SELECT title AS Job_Title, role.id AS Role_ID, name AS Department, salary AS Salary FROM role JOIN department ON role.department_id = department.id;';
+const qDepartments = 'SELECT name AS Dept_Name, id AS Dept_ID FROM department';
+const qEmployees = 'SELECT CONCAT(employee.first_name," ",employee.last_name) AS Employee_Name,employee.id AS Employee_ID,role.title AS Job_Title,role.salary AS Salary,department.name AS Department,CONCAT(a.first_name," ",a.last_name) AS Manager_Name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN employee a ON employee.manager_id = a.id ORDER BY title;'
+let dbQuery = qEmployees;
+
+let init = async () => {
+  inquirer
+  .prompt([
+      {
+          type: 'list',
+          message: "What would you like to do?",
+          name: 'firstChoice',
+          choices:['View All Departments', 'View All Roles', 'Veiw All Employees', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role'],
+      }
+  ])
+  .then(async (response) => {
+      switch (response.firstChoice) {
+          case 'View All Departments':
+              dbQuery = qDepartments;
+              await dataQuery(dbQuery);
+              endQuest();
+              break;
+          case 'View All Roles':
+              dbQuery = qRoles;
+              await dataQuery(dbQuery);
+              endQuest();
+              break;
+          case 'Veiw All Employees':
+              dbQuery = qEmployees;
+              await dataQuery(dbQuery);
+              endQuest();
+              }
+  });
+};
+
+const endQuest = () =>{
+  inquirer
+  .prompt([
+      {
+          type: 'confirm',
+          message: "Would you like to perform more actions?",
+          name: 'restart',
+          default: true,
+      }
+  ])
+  .then( (response) => {
+      switch (response.restart) {
+          case true:
+              init();
+              break;
+          case false:
+            db.end();
+      }
+  });
+}
+
+let dataQuery = async (qType) => {
+    let qData;
+    await db.promise().query(`${qType}`)
+    .then( ([rows,fields]) => {
+        qData = rows;
+      })
+      // .catch(console.log)
+      // .then( () => db.end());
+    await buildTable(qData);
+    console.log('done building table');
+    return;
+};
+
+let buildTable = results => {
+  const table = cTable.getTable(results);
+  return new Promise ((resolve) => {
+      console.log('printing table');
+      resolve(console.table(table));
+  });
+}
 
 //Inquirer Question: What would you like to do? Options:view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
 
@@ -60,3 +139,8 @@ const db = mysql.createConnection(
       //CHOOSE NEW EMPLOYEE ROLE:
         //get role id from role table, set to employee.role_id variable
         //UPDATE employee SET role_id = {role_id} WHERE id = {id}
+init();
+
+// app.listen(PORT, () =>
+//   console.log(`App listening at http://localhost:${PORT} 🚀`)
+// );

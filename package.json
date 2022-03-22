@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.2.1",
+    "mysql2": "^2.3.3"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "name": "du-hw12-employee-tracker",
+  "description": "",
+  "version": "1.0.0",
+  "main": "server.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GittinIt6/DU-HW12-Employee-Tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GittinIt6/DU-HW12-Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/GittinIt6/DU-HW12-Employee-Tracker#readme"
+}
