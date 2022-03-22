@@ -14,12 +14,14 @@ const db = mysql.createConnection(
     console.log(`Connected to the tracker_db database.`)
 );
 
+let listData = [];
+const listEmployees = 'SELECT CONCAT(first_name," ",last_name) AS full_name FROM employee';
 const qRoles = 'SELECT title AS Job_Title, role.id AS Role_ID, name AS Department, salary AS Salary FROM role JOIN department ON role.department_id = department.id;';
 const qDepartments = 'SELECT name AS Dept_Name, id AS Dept_ID FROM department';
 const qEmployees = 'SELECT CONCAT(employee.first_name," ",employee.last_name) AS Employee_Name,employee.id AS Employee_ID,role.title AS Job_Title,role.salary AS Salary,department.name AS Department,CONCAT(a.first_name," ",a.last_name) AS Manager_Name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN employee a ON employee.manager_id = a.id ORDER BY title;'
-let dbQuery = qEmployees;
+// let dbQuery = qEmployees;
 
-let init = async () => {
+let init = () => {
   inquirer
   .prompt([
       {
@@ -32,21 +34,69 @@ let init = async () => {
   .then(async (response) => {
       switch (response.firstChoice) {
           case 'View All Departments':
-              dbQuery = qDepartments;
-              await dataQuery(dbQuery);
+              // dbQuery = qDepartments;
+              await dataQuery(qDepartments,true);
               endQuest();
               break;
           case 'View All Roles':
-              dbQuery = qRoles;
-              await dataQuery(dbQuery);
+              // dbQuery = qRoles;
+              await dataQuery(qRoles,true);
               endQuest();
               break;
           case 'Veiw All Employees':
-              dbQuery = qEmployees;
-              await dataQuery(dbQuery);
+              // dbQuery = qEmployees;
+              await dataQuery(qEmployees,true);
               endQuest();
-              }
+              break;
+          case 'Update An Employee Role':
+            const forData = await dataQuery(listEmployees,false);
+            for (let i = 0; i < forData.length; i++) {
+              listData.push(forData[i].full_name);   
+            };
+            await employeeUpdate(listData);
+            listData = [];
+      }
   });
+};
+
+let employeeUpdate = async (choiceInput) => {
+  inquirer
+  .prompt([
+      {
+          type: 'list',
+          message: "Select the Employee to update:",
+          name: 'employeeChoice',
+          choices: choiceInput,
+      }
+  ])
+  .then(async(response) => {
+      // console.log(`you chose ${response.employeeChoice}`);
+      listData = [];
+      const forData = await dataQuery('SELECT title FROM role',false)
+      for (let i = 0; i < forData.length; i++) {
+        listData.push(forData[i].title);   
+      };
+      employeeRoleUpdate(listData,response.employeeChoice);
+  });
+  return;
+};
+
+let employeeRoleUpdate = (choiceInput,employee) => {
+  inquirer
+  .prompt([
+      {
+          type: 'list',
+          message: "Select new Employee Role:",
+          name: 'employeeRoleChoice',
+          choices: choiceInput,
+      }
+  ])
+  .then((response) => {
+      console.log(`employee is ${employee}.`);
+      console.log(`new role is ${response.employeeRoleChoice}`);
+      return endQuest();
+  });
+  return;
 };
 
 const endQuest = () =>{
@@ -70,7 +120,7 @@ const endQuest = () =>{
   });
 }
 
-let dataQuery = async (qType) => {
+let dataQuery = async (qType,renderTable) => {
     let qData;
     await db.promise().query(`${qType}`)
     .then( ([rows,fields]) => {
@@ -78,15 +128,20 @@ let dataQuery = async (qType) => {
       })
       // .catch(console.log)
       // .then( () => db.end());
-    await buildTable(qData);
-    console.log('done building table');
-    return;
+      if (renderTable) {await buildTable(qData);
+        console.log('done building table');
+        console.log('returning from dbTest function');
+        return qData;
+      }
+      else{
+          return qData;
+      };
 };
 
 let buildTable = results => {
   const table = cTable.getTable(results);
   return new Promise ((resolve) => {
-      console.log('printing table');
+      console.log(`Results:`);
       resolve(console.table(table));
   });
 }
