@@ -54,6 +54,9 @@ let init = () => {
           case 'Add A Role':
             await roleAdd();
             break;
+          case 'Add An Employee':
+            await employeeAdd();
+            break;
           case 'Update An Employee Role':
             const forData = await dataQuery(listEmployees,false);
             for (let i = 0; i < forData.length; i++) {
@@ -160,6 +163,59 @@ let roleAdd = async () =>{
         message: "Select DEPARTMENT for Role:",
         name: 'departmentChoice',
         choices: listData,
+      }
+  ])
+  .then(async(response) => {
+      // let empName = employee.split(" ");
+      const deptID = await dataQuery(`SELECT id FROM department WHERE name = '${response.departmentChoice}'`,false);
+      // const roleID = await dataQuery(`SELECT id FROM role WHERE title = '${response.employeeRoleChoice}'`,false);
+      await dataQuery(`INSERT INTO role (title, salary, department_id) VALUES ('${response.roleInput}',${parseFloat(response.salaryInput.replace(/,/g, ''))},${deptID[0].id})`,false);
+      console.log(`NEW Role SUCCESS: ${response.roleInput} added as a new role in department: ${response.departmentChoice}`);
+      return endQuest();
+  })
+  .catch((error) => {
+    console.log('got error', error);
+  });
+  return;
+};
+
+//---left off here building this function
+let employeeAdd = async () =>{
+  const roleListData = [];
+  const managerListData = [];
+  const forDataRole = await dataQuery('SELECT name FROM department',false)
+  for (let i = 0; i < forData.length; i++) {
+    listData.push(forDataRole[i].name);
+  };
+  const forDataMgr = await dataQuery('SELECT name FROM department',false)
+  for (let i = 0; i < forData.length; i++) {
+    listData.push(forDataMgr[i].name);
+  };
+  inquirer
+  .prompt([
+      {
+        type: 'input',
+        message: "Enter Employee FIRST Name:",
+        name: 'fnameInput',
+        default:'Tim',
+      },
+      {
+        type: 'input',
+        message: "Enter Employee LAST Name:",
+        name: 'lnameInput',
+        default:'Smith',
+      },
+      {
+        type: 'list',
+        message: "Select Employee's ROLE:",
+        name: 'roleChoice',
+        choices: roleListData,
+      },
+      {
+      type: 'list',
+      message: "Select Employee's Manager:",
+      name: 'roleChoice',
+      choices: managerListData,
       }
   ])
   .then(async(response) => {
