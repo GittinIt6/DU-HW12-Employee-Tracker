@@ -28,26 +28,32 @@ let init = () => {
           type: 'list',
           message: "What would you like to do?",
           name: 'firstChoice',
-          choices:['View All Departments', 'View All Roles', 'Veiw All Employees', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role'],
+          choices:['View All Departments', 'View All Roles', 'Veiw All Employees', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role','Exit'],
       }
   ])
   .then(async (response) => {
       switch (response.firstChoice) {
           case 'View All Departments':
-              // dbQuery = qDepartments;
-              await dataQuery(qDepartments,true);
-              endQuest();
-              break;
+            // dbQuery = qDepartments;
+            await dataQuery(qDepartments,true);
+            endQuest();
+            break;
           case 'View All Roles':
-              // dbQuery = qRoles;
-              await dataQuery(qRoles,true);
-              endQuest();
-              break;
+            // dbQuery = qRoles;
+            await dataQuery(qRoles,true);
+            endQuest();
+            break;
           case 'Veiw All Employees':
-              // dbQuery = qEmployees;
-              await dataQuery(qEmployees,true);
-              endQuest();
-              break;
+            // dbQuery = qEmployees;
+            await dataQuery(qEmployees,true);
+            endQuest();
+            break;
+          case 'Add A Department':
+            await departmentAdd();
+            break;
+          case 'Add A Role':
+            await roleAdd();
+            break;
           case 'Update An Employee Role':
             const forData = await dataQuery(listEmployees,false);
             for (let i = 0; i < forData.length; i++) {
@@ -55,6 +61,9 @@ let init = () => {
             };
             await employeeUpdate(listData);
             listData = [];
+            break;
+          case 'Exit':
+            db.end();
       }
   });
 };
@@ -101,6 +110,72 @@ let employeeRoleUpdate = (choiceInput,employee) => {
   });
   return;
 };
+
+let departmentAdd = async () =>{
+  inquirer
+  .prompt([
+      {
+        type: 'input',
+        message: "Enter New DEPARTMENT Name:",
+        name: 'deptInput',
+        default:'New Department',
+      }
+  ])
+  .then(async(response) => {
+      // let empName = employee.split(" ");
+      // const empID = await dataQuery(`SELECT id FROM employee WHERE first_name = '${empName[0]}' AND last_name = '${empName[1]}'`,false);
+      // const roleID = await dataQuery(`SELECT id FROM role WHERE title = '${response.employeeRoleChoice}'`,false);
+      await dataQuery(`INSERT INTO department (name) VALUES ('${response.deptInput}')`,false);
+      console.log(`NEW Department SUCCESS: ${response.deptInput} added as a new department`);
+      return endQuest();
+  })
+  .catch((error) => {
+    console.log('got error', error);
+  });
+  return;
+};
+
+let roleAdd = async () =>{
+  listData = [];
+  const forData = await dataQuery('SELECT name FROM department',false)
+  for (let i = 0; i < forData.length; i++) {
+    listData.push(forData[i].name);   
+  };
+  inquirer
+  .prompt([
+      {
+        type: 'input',
+        message: "Enter New ROLE Name:",
+        name: 'roleInput',
+        default:'New Role',
+      },
+      {
+        type: 'input',
+        message: "Enter SALARY of new role:",
+        name: 'salaryInput',
+        default:'100,000',
+      },
+      {
+        type: 'list',
+        message: "Select DEPARTMENT for Role:",
+        name: 'departmentChoice',
+        choices: listData,
+      }
+  ])
+  .then(async(response) => {
+      // let empName = employee.split(" ");
+      const deptID = await dataQuery(`SELECT id FROM department WHERE name = '${response.departmentChoice}'`,false);
+      // const roleID = await dataQuery(`SELECT id FROM role WHERE title = '${response.employeeRoleChoice}'`,false);
+      await dataQuery(`INSERT INTO role (title, salary, department_id) VALUES ('${response.roleInput}',${parseFloat(response.salaryInput.replace(/,/g, ''))},${deptID[0].id})`,false);
+      console.log(`NEW Role SUCCESS: ${response.roleInput} added as a new role in department: ${response.departmentChoice}`);
+      return endQuest();
+  })
+  .catch((error) => {
+    console.log('got error', error);
+  });
+  return;
+};
+
 
 const endQuest = () =>{
   inquirer
