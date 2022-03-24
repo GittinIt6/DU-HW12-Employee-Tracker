@@ -179,17 +179,16 @@ let roleAdd = async () =>{
   return;
 };
 
-//---left off here building this function
 let employeeAdd = async () =>{
-  const roleListData = [];
-  const managerListData = [];
+  let roleListData = [];
+  let managerListData = [];
   const forDataRole = await dataQuery('SELECT name FROM department',false)
-  for (let i = 0; i < forData.length; i++) {
-    listData.push(forDataRole[i].name);
+  for (let i = 0; i < forDataRole.length; i++) {
+    roleListData.push(forDataRole[i].name);
   };
-  const forDataMgr = await dataQuery('SELECT name FROM department',false)
-  for (let i = 0; i < forData.length; i++) {
-    listData.push(forDataMgr[i].name);
+  const forDataMgr = await dataQuery('SELECT CONCAT(first_name," ",last_name) AS employee_name FROM employee',false)
+  for (let i = 0; i < forDataMgr.length; i++) {
+    managerListData.push(forDataMgr[i].employee_name);
   };
   inquirer
   .prompt([
@@ -212,12 +211,13 @@ let employeeAdd = async () =>{
         choices: roleListData,
       },
       {
-      type: 'list',
-      message: "Select Employee's Manager:",
-      name: 'roleChoice',
-      choices: managerListData,
+        type: 'list',
+        message: "Select Employee's Manager:",
+        name: 'managerChoice',
+        choices: managerListData,
       }
   ])
+  //---left off here building this function
   .then(async(response) => {
       // let empName = employee.split(" ");
       const deptID = await dataQuery(`SELECT id FROM department WHERE name = '${response.departmentChoice}'`,false);
