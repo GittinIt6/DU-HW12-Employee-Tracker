@@ -213,7 +213,7 @@ let employeeAdd = async () =>{
       const mgrID = await dataQuery(`SELECT id FROM employee WHERE first_name = '${mgrName[0]}' AND last_name = '${mgrName[1]}'`,false);
       const roleID = await dataQuery(`SELECT id FROM role WHERE title = '${response.roleChoice}'`,false);
       await dataQuery(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${response.fnameInput}','${response.lnameInput}',${roleID[0].id},${mgrID[0].id})`,false);
-      console.log(`NEW EMPLOYEE SUCCESS: New employee ${response.fnameInput} ${response.LnameInput}, ${response.roleChoice}, added as a new employee reporting to ${response.managerChoice}.`);
+      console.log(`NEW EMPLOYEE SUCCESS: New employee ${response.fnameInput} ${response.lnameInput}, ${response.roleChoice}, added as a new employee reporting to ${response.managerChoice}.`);
       return endQuest();
   })
   .catch((error) => {
