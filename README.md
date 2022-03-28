@@ -2,8 +2,8 @@
 
 DU Coding Bootcamp Homework 12: SQL Employee Tracker
 
-# node.js application
-This is a node.js script relying on NPM package **inquirer** that will generate a file on the local filesystem of the server in the **./dist directory**. It writes to local storage and does not have functionality built in to clear the local storage objects.
+# node.js application with SQL connectivity
+This is a node.js script relying on NPM package **inquirer** that accesses a SQL server as defined by the connection in the server.js file.
 
 Github Repository Address: <https://github.com/GittinIt6/DU-HW12-Employee-Tracker>
 
@@ -11,69 +11,59 @@ See walkthrough/demonstration video at <https://youtu.be/l9fSH9553IE>
 
 ## Purpose
 
-This application is specific to anyone that wants to generate an html website showing the manager and members of their team.
+This application is specific to anyone that wants to view and populate team organization (roles, salary, department, and employee).
 
 ## Instructions
 1. Ensure you have downloaded and installed node.js and have rebooted your system (if Windows)
 2. Clone repository to your system.
-3. From a terminal, ensure you are in the index.js directory
-4. Run:
+3. From a terminal, ensure you are in the server.js directory
+4. Update the server.js const db = mysql.createConnection location to include your database connection info.
+5. Within a mysql CLI, run the ./db/schema.sql and then the ./db/seeds.sql to create and populate the database.
+6. Run:
 ~~~
 npm i
-node index.js
-~~~
-5. A rendered output of index.html and style.css will be saved into your **./dist** directory
-
-### Testing with jest
-1. Ensure you are the in the index.js directory
-2. Run:
-~~~
-npm test
+npm start
 ~~~
 
 ## Audience
 
-The intended audience is an individual that would like to generate an html website with employee info.
+The intended audience is an individual that would like to manage a company employee database.
 
 &#x2611; **Technical Knowledge:**
-The user of this site does need to have a technical background, and *should* understand node.js capabilities.
+The user of this site does need to have a technical background, and *should* understand node.js and MYSQL capabilities.
 
 ## Technical Detail
 
-This application uses node.js with **fs** and **require**.
+This application uses node.js with **MYSQL**, **inquire**, and **console.table**.
 
 The files are configured as follows:
 ```
 Root Directory/
 |
-│ --index.js
+│ --server.js
 │ --package.json
 │ --.gitignore
 │ --readme.md
 |
-└───__tests__/ (folder)
-│   ├── Employee.test.js
-│   ├── Engineer.test.js
-│   ├── Intern.test.js
-│   └── Manager.test.js
-└───dist/ (folder)
-|     --your rendered readme.md
-|
-└───lib/ (folder)
-|
-└───src/ (folder)
+└───db/ (folder)
+   ├── schema.sql
+   └── seeds.sql
 ```
 >**node.js**: This site uses node.js <https://nodejs.org/>
 
->**fs**: This site uses node.js built in fs module <https://nodejs.dev/learn/the-nodejs-fs-module>
+>**MySQL**: This site uses MYSQL
 
 >**inquirer NPM package**: This site uses inquirer <https://www.npmjs.com/package/inquirer>
 
->**jest for testing**: This site uses jest <https://jestjs.io/>
+>**console.log**: This site uses console.table <https://developer.mozilla.org/en-US/docs/Web/API/console/table>
 
-### Data Flow Diagram:
+### SQL Schema:
 
-![data flow diagram](./git-files/data-flow.PNG)
+![screenshot](./git-files/schema.PNG)
+
+### Screenshot:
+
+![screenshot](./git-files/screenshot.PNG)
 
 ## Revision History 
 
