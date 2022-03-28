@@ -2,6 +2,7 @@ const inquirer = require('inquirer');
 const cTable = require('console.table');
 const mysql = require('mysql2');
 
+//set database connection info
 const db = mysql.createConnection(
     {
     host: '192.168.147.181',
@@ -18,6 +19,7 @@ const qRoles = 'SELECT title AS Job_Title, role.id AS Role_ID, name AS Departmen
 const qDepartments = 'SELECT name AS Dept_Name, id AS Dept_ID FROM department';
 const qEmployees = 'SELECT CONCAT(employee.first_name," ",employee.last_name) AS Employee_Name,employee.id AS Employee_ID,role.title AS Job_Title,role.salary AS Salary,department.name AS Department,CONCAT(a.first_name," ",a.last_name) AS Manager_Name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN employee a ON employee.manager_id = a.id ORDER BY title;'
 
+//app initialization function
 let init = () => {
   inquirer
   .prompt([
@@ -66,6 +68,7 @@ let init = () => {
   });
 };
 
+//when update an employee is chosen, ask which employee using list of employees from database
 let employeeUpdate = async (choiceInput) => {
   inquirer
   .prompt([
@@ -87,6 +90,7 @@ let employeeUpdate = async (choiceInput) => {
   return;
 };
 
+//after employee is chosen, ask which role to assign using list of roles from database
 let employeeRoleUpdate = (choiceInput,employee) => {
   inquirer
   .prompt([
@@ -108,6 +112,7 @@ let employeeRoleUpdate = (choiceInput,employee) => {
   return;
 };
 
+//after add a department is chosen, ask which department to add to database
 let departmentAdd = async () =>{
   inquirer
   .prompt([
@@ -129,8 +134,10 @@ let departmentAdd = async () =>{
   return;
 };
 
+//after add a role is chosen, ask which role to add to the database with salary and department selection.
 let roleAdd = async () =>{
   listData = [];
+  //pull all roles from database for use in question 3
   const forData = await dataQuery('SELECT name FROM department',false)
   for (let i = 0; i < forData.length; i++) {
     listData.push(forData[i].name);   
@@ -169,13 +176,16 @@ let roleAdd = async () =>{
   return;
 };
 
+//after add an employee is chosen, ask for names role and manager
 let employeeAdd = async () =>{
   let roleListData = [];
   let managerListData = [];
+  //pull roles from database for use in question 3
   const forDataRole = await dataQuery('SELECT title FROM role',false)
   for (let i = 0; i < forDataRole.length; i++) {
     roleListData.push(forDataRole[i].title);
   };
+  //pull employees from database for use in question 4 (manager)
   const forDataMgr = await dataQuery('SELECT CONCAT(first_name," ",last_name) AS employee_name FROM employee',false)
   for (let i = 0; i < forDataMgr.length; i++) {
     managerListData.push(forDataMgr[i].employee_name);
@@ -222,7 +232,7 @@ let employeeAdd = async () =>{
   return;
 };
 
-
+//end question, do you want to start over or exit?
 const endQuest = () =>{
   inquirer
   .prompt([
@@ -244,6 +254,7 @@ const endQuest = () =>{
   });
 }
 
+//function to query data with option to render a table (true = render table, false = do not render table)
 let dataQuery = async (qType,renderTable) => {
     let qData;
     await db.promise().query(`${qType}`)
@@ -267,4 +278,5 @@ let buildTable = results => {
   });
 }
 
+//initialize application
 init();
